@@ -17,7 +17,7 @@
 --]]
 
 local argmatcher = {
-	VERSION = "0.1.0",
+	VERSION = "0.1.1",
 }
 argmatcher.__index = argmatcher
 
@@ -38,10 +38,12 @@ function argmatcher._on(self, t, stop)
 		stop = stop,
 		arg = t.arg,
 		description = t.description,
-		callback = t.callback or function(arg) t.store[names[1]] = arg or true end,
+		callback = t.callback or function(arg) t.store[t.arg or names[1]] = arg or true end,
 	}
 	table.insert(self._known_options, match)
 	for _, name in ipairs(t) do
+		assert(self._known_options[name] == nil,
+				string.format("[argmatcher] Option %q was already defined", name))
 		self._known_options[name] = match
 	end
 end
@@ -68,7 +70,7 @@ function argmatcher.parse(self, args)
 			if match.arg then
 				callback_arg = args[i + 1]
 				assert(callback_arg and self._known_options[callback_arg] == nil,
-				       string.format("Argument is required for option %q", argi))
+						string.format("Argument is required for option %q", argi))
 				i = i + 1
 			end
 			match.callback(callback_arg)
@@ -97,8 +99,9 @@ function argmatcher.show_help(self, prologue, epilogue)
 	table.insert(lines, prologue)
 	table.insert(lines, #options > 0 and "Options:\n" .. table.concat(options, "\n"))
 	table.insert(lines, epilogue)
-	table.insert(lines, "")
-	io.write(table.concat(lines, "\n"))
+	io.write(table.concat(lines, "\n\n") .. "\n")
 end
+
+function argmatcher.nop() end
 
 return argmatcher
