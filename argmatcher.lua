@@ -16,7 +16,9 @@
 -- along with Argmatcher.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local argmatcher = {}
+local argmatcher = {
+	VERSION = "0.1.0",
+}
 argmatcher.__index = argmatcher
 
 function argmatcher.new()
